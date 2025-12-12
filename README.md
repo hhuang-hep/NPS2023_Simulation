@@ -13,7 +13,7 @@ It is based on 4 packages with different environment configuration requirements:
 
 **Requires:** root-6.30.04 and gcc11.4.0 in /cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/modulefiles
 
-Once these packages are download and compiled, one can easily setup and run the simulation with the script in this repository
+After downloading and compiling these packages, one can easily setup and run the simulation with the script in this repository
 
 ## Download and compiling of required packages
 1. Generator, Geant4 and NPS software
