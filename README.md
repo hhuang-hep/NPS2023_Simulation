@@ -49,7 +49,7 @@ Once these packages are download and compiled, one can easily setup and run the 
     `setenv ROOTSYS /cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/root/6.30.04-gcc11.4.0`
 
     - Compile MC-single-arm package\
-    (method from Yaopeng: https://github.com/YaopengZhang/mc-single-arm/blob/NPS/README.md)\
+    (method from Yaopeng: https://github.com/YaopengZhang/mc-single-arm/blob/NPS/README.md) \
     `git clone --branch NPS https://github.com/YaopengZhang/mc-single-arm.git`\
     `cd mc-single-arm/`\
     `cd src`\
