@@ -69,16 +69,18 @@ Once these packages are download and compiled, one can easily setup and run the 
     - folder_DVCS_EVENT_GEN: path to the dvcs_gen directory
 
 3. Create folders and soft links for running simulation\
-    `./simu_setup.sh`
+    `./simu_setup.sh`\
+    then one should see the created folders "input_g4", "rootfiles", "temp",\
+    as well as the soft links "generated_events", "worksim" of same forlder in mc-single-arm package and the executable 'DVCS' from NPS-Geant4
 
 ## Run a simulation
-If the path in "source_simu.sh" are setup correctly, the simulation can be performed using NPS_HMS_simu.sh\
-This script will altomatically setup the required environment for the packages above then execute them for simulation.\
+If the path in "source_simu.sh" are setup correctly, the simulation can be performed by "NPS_HMS_simu.sh"\
+This script automates the environment setup and execution of the packages above\
 It requires 3 (or 4) parameters:
 1. Run number of the corresponds kinematics (e.g., 3728 for simulating KinC_x36_5_3)
 2. Target type (0 for liquid hydrogen, 1 for liquid deuterium)
 3. Nucleon type (0 for proton, 1 for neutron, 2 for deuteron)
-4. The 4th parameter is set to 1 and not always required. It plays two roles:\
+4. The 4th parameter is set to 1 by default and not always required to input. It plays two roles:\
     (1) a suffix for the name of output files, so that they won't be overwritten when running with jobs\
     (2) a random seed for NPS-Geant4 package (DO NOT set 0 to this parameter. It's not going to work)
 
