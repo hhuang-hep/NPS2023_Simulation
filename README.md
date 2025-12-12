@@ -107,7 +107,7 @@ The details of the simulation and output variables are in https://indico.jlab.or
 
 ## Potential issue when running a simulation
 1. Confilct error when other modules are loaded (e.g., 'module use /group/nps/modulefiles' in ~/.cshrc)
-- solution: comment out this lines in ~/.cshrc and start the simulation in a clean shell
-- potential solution: add 'module unuse /group/nps/modulefiles' after every 'module purge' in NPS_HMS_simu.sh
+    - solution: comment out this lines in ~/.cshrc and start the simulation in a clean shell
+    - potential solution: add 'module unuse /group/nps/modulefiles' after every 'module purge' in NPS_HMS_simu.sh
 
 
