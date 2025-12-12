@@ -49,7 +49,7 @@ Once these packages are download and compiled, one can easily setup and run the 
     `setenv ROOTSYS /cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/root/6.30.04-gcc11.4.0`
 
     - Compile MC-single-arm package (method from Yaopeng: https://github.com/YaopengZhang/mc-single-arm/blob/NPS/README.md)\
-    `git clone --branch NPS https://github.com/YaopengZhang/mc-single-arm.git`
+    `git clone --branch NPS https://github.com/YaopengZhang/mc-single-arm.git`\
     `cd mc-single-arm/`\
     `cd src`\
     `make`\
@@ -70,8 +70,8 @@ Once these packages are download and compiled, one can easily setup and run the 
 
 3. Create folders and soft links for running simulation\
     `./simu_setup.sh`\
-    then one should see the created folders "input_g4", "rootfiles", "temp",\
-    as well as the soft links "generated_events", "worksim" of same forlder in mc-single-arm package and the executable 'DVCS' from NPS-Geant4
+    this should create the folders "input_g4", "rootfiles", and "temp",\
+    as well as the soft links of "generated_events", "worksim" from same forlder in mc-single-arm package, and the executable 'DVCS' from NPS-Geant4
 
 ## Run a simulation
 If the path in "source_simu.sh" are setup correctly, the simulation can be performed by "NPS_HMS_simu.sh"\
