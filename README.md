@@ -106,8 +106,8 @@ The function of the rest of files are:
 The details of the simulation and output variables are in https://indico.jlab.org/event/946/contributions/16514/attachments/12609/20085/20250506_DVCS_simulation_Hao_Huang.pdf
 
 ## Potential issue when running a simulation
-1. Confilct error when other modules are loaded (e.g., 'module use /group/nps/modulefiles' in ~/.cshrc)
-    - solution: comment out this lines in ~/.cshrc and start the simulation in a clean shell
-    - potential solution: add 'module unuse /group/nps/modulefiles' after every 'module purge' in NPS_HMS_simu.sh
+1. Conflict error when loading root/6.30.04 if other modules are loaded (e.g., with 'module use /group/nps/modulefiles' in ~/.cshrc)
+    - solution: comment out that line in ~/.cshrc and start the simulation in a clean shell
+    - potential solution: add 'module 'unuse /group/nps/modulefiles' after every 'module purge' in NPS_HMS_simu.sh
 
 
