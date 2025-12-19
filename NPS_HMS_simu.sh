@@ -7,6 +7,11 @@ if [ -z "$i_job" ]; then
     i_job=1
 fi
 
+gen_type=$5 # index for different reactions (0: DVCS (default), 1: exclusive pi0)
+if [ -z "$gen_type" ]; then
+    gen_type=0
+fi
+
 # ------------ Environment setup ------------
 CONFIG_FILE="$(dirname "$0")/source_simu.sh"
 
@@ -218,7 +223,7 @@ cp ./Reconstruction.C ./temp/Reconstruction_${i_job}.C
 fileNAME=$simDir/temp/Reconstruction_${i_job}
 root -b <<EOF
     .L $fileNAME.C+
-        Reconstruction("$KIN_NAME", $target1, $i_job);
+        Reconstruction("$KIN_NAME", $target1, $i_job, $gen_type);
     .q
 EOF
 

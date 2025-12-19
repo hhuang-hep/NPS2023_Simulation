@@ -34,7 +34,7 @@ Int_t bnConv_OldToNew(int ibn_old); // Convert the PMT number to the current ver
 Int_t bnConv_NewToOld(int ibn_new); // Convert the PMT number to the simulation version
 TDVCSDB *db = new TDVCSDB("dvcs", "clrlpc", 3306, "hhuang", "");
 
-void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
+void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int gen_type = 0)
 {   
     gSystem->Load("/group/nps/hhuang/software/NPS_SOFT/libDVCS.so");
 
@@ -79,7 +79,11 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
     // for(int i = 0; i < 1080; i++) cout << caloMaskBlock[i] << " ";
     // cout << endl;
 
-    cout<<"Start Processing photon reconstruction for "<<kinc_param.c_str()<<endl;
+    string gen_type_str = "";
+    if(gen_type == 0) gen_type_str = "DVCS";
+    else if(gen_type == 1) gen_type_str = "pi0";
+    else {cout<<"Error: invalid reaction type!"<<endl; return;}
+    cout<<"Start Processing photon reconstruction of "<< gen_type_str.c_str()<<" for "<<kinc_param.c_str()<<endl;
     cout<<"========== Kinematic information =========="<<endl;
     cout<<"Target type: ";
     if(target_flag == 0) cout<<"LH2"<< endl;
@@ -129,6 +133,10 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
     Double_t GSE_px, GSE_py, GSE_pz; // Generated scattered electron with the internal radiation correction
     Double_t RSE_px, RSE_py, RSE_pz; // Reconstructed scattered electon from HMS MC simulation with external radiation correction
     Double_t GP_px, GP_py, GP_pz; // Generated real photon from DVCS gen
+
+    Double_t GP_px1, GP_py1, GP_pz1; // Generated real photon from pi0 gen
+    Double_t GP_px2, GP_py2, GP_pz2; // Generated real photon from pi0 gen
+
     Double_t edep[1080];// energy deposition in each crystal
     Double_t X_sum, X_diff, X_BH; // cross sections
 
@@ -159,9 +167,20 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
 
     t_g4->SetBranchAddress("edep", edep); // Energy deposition in each crystal
     // Generated real photon from DVCS gen (not from Geant4)
-    t_g4->SetBranchAddress("GP_px",  &GP_px);
-    t_g4->SetBranchAddress("GP_py",  &GP_py);
-    t_g4->SetBranchAddress("GP_pz",  &GP_pz);
+    if(gen_type == 0){
+        t_g4->SetBranchAddress("GP_px",  &GP_px);
+        t_g4->SetBranchAddress("GP_py",  &GP_py);
+        t_g4->SetBranchAddress("GP_pz",  &GP_pz);
+    }
+    else if(gen_type == 1){
+        t_g4->SetBranchAddress("GP_px1",  &GP_px1);
+        t_g4->SetBranchAddress("GP_py1",  &GP_py1);
+        t_g4->SetBranchAddress("GP_pz1",  &GP_pz1);
+
+        t_g4->SetBranchAddress("GP_px2",  &GP_px2);
+        t_g4->SetBranchAddress("GP_py2",  &GP_py2);
+        t_g4->SetBranchAddress("GP_pz2",  &GP_pz2);
+    }
 
     t_g4->SetBranchAddress("X_sum", &X_sum); // XSecSum(0) from DVCS gen
     t_g4->SetBranchAddress("X_diff", &X_diff); // XSecDif() from DVCS gen
@@ -225,10 +244,17 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
 
     // New branches for reconstructed photon and NPS clusters
     Double_t RV_z; // Reconstructed vertex z position
-    Double_t clust_x, clust_y, clust_ene;
-    Int_t clust_size;
-    Double_t phot_px, phot_py, phot_pz;
-    Double_t Mx2;
+    Double_t clust_x, clust_y, clust_ene; // DVCS
+    Int_t clust_size; // DVCS
+    Double_t phot_px, phot_py, phot_pz; // DVCS
+
+    Double_t clust_x1, clust_y1, clust_ene1; // pi0
+    Double_t clust_x2, clust_y2, clust_ene2; // pi0
+    Int_t clust_size1, clust_size2; // pi0
+    Double_t phot_px1, phot_py1, phot_pz1; // pi0
+    Double_t phot_px2, phot_py2, phot_pz2; // pi0
+
+    Double_t Mx2, M;
     Double_t RQ2, Rphi, Rt, RxB;
 
     MC_dvcs->Branch("evtNb", &evtNb, "Event_Number/I");
@@ -245,9 +271,20 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
     MC_dvcs->Branch("GSE_px", &GSE_px, "Scattered_electron_Px_from_DVCS_gen/D");
     MC_dvcs->Branch("GSE_py", &GSE_py, "Scattered_electron_Py_from_DVCS_gen/D");
     MC_dvcs->Branch("GSE_pz", &GSE_pz, "Scattered_electron_Pz_from_DVCS_gen/D");
-    MC_dvcs->Branch("GPh_px", &GP_px, "Real_photon_Px_from_DVCS_gen/D");
-    MC_dvcs->Branch("GPh_py", &GP_py, "Real_photon_Py_from_DVCS_gen/D");
-    MC_dvcs->Branch("GPh_pz", &GP_pz, "Real_photon_Pz_from_DVCS_gen/D");
+    if(gen_type == 0){
+        MC_dvcs->Branch("GPh_px", &GP_px, "Real_photon_Px_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_py", &GP_py, "Real_photon_Py_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_pz", &GP_pz, "Real_photon_Pz_from_DVCS_gen/D");
+    }
+    else if(gen_type == 1){
+        MC_dvcs->Branch("GPh_px1", &GP_px1, "Real_photon_Px_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_py1", &GP_py1, "Real_photon_Py_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_pz1", &GP_pz1, "Real_photon_Pz_from_DVCS_gen/D");
+
+        MC_dvcs->Branch("GPh_px2", &GP_px2, "Real_photon_Px_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_py2", &GP_py2, "Real_photon_Py_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_pz2", &GP_pz2, "Real_photon_Pz_from_DVCS_gen/D");
+    }
     MC_dvcs->Branch("GQ2", &GQ2, "Q2_from_DVCS_gen/D");
     MC_dvcs->Branch("GxB", &GxB, "xB_from_DVCS_gen/D");
     MC_dvcs->Branch("Gt", &Gt, "t_from_DVCS_gen/D");
@@ -262,11 +299,27 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
     MC_dvcs->Branch("RSE_px", &RSE_px, "Scattered_electron_Px_from_in_HMS_simulation/D");
     MC_dvcs->Branch("RSE_py", &RSE_py, "Scattered_electron_Py_from_in_HMS_simulation/D");
     MC_dvcs->Branch("RSE_pz", &RSE_pz, "Scattered_electron_Pz_from_in_HMS_simulation/D");
-    MC_dvcs->Branch("clust_x", &clust_x, "Cluster_X_position/D");
-    MC_dvcs->Branch("clust_y", &clust_y, "Cluster_Y_position/D");
-    MC_dvcs->Branch("clust_z", &caloDist, "Cluster_Z_position_is_the_NPS_distancen/D");
-    MC_dvcs->Branch("clust_ene", &clust_ene, "Cluster_energy/D");
-    MC_dvcs->Branch("clust_size", &clust_size, "Cluster_size/I");
+    if(gen_type == 0){
+        MC_dvcs->Branch("clust_x", &clust_x, "Cluster_X_position/D");
+        MC_dvcs->Branch("clust_y", &clust_y, "Cluster_Y_position/D");
+        MC_dvcs->Branch("clust_z", &caloDist, "Cluster_Z_position_is_the_NPS_distancen/D");
+        MC_dvcs->Branch("clust_ene", &clust_ene, "Cluster_energy/D");
+        MC_dvcs->Branch("clust_size", &clust_size, "Cluster_size/I");
+    }
+    else if(gen_type == 1){
+        MC_dvcs->Branch("clust_x1", &clust_x1, "Cluster_X_position/D");
+        MC_dvcs->Branch("clust_y1", &clust_y1, "Cluster_Y_position/D");
+        MC_dvcs->Branch("clust_z1", &caloDist, "Cluster_Z_position_is_the_NPS_distancen/D");
+        MC_dvcs->Branch("clust_ene1", &clust_ene1, "Cluster_energy/D");
+        MC_dvcs->Branch("clust_size1", &clust_size1, "Cluster_size/I");
+
+        MC_dvcs->Branch("clust_x2", &clust_x2, "Cluster_X_position/D");
+        MC_dvcs->Branch("clust_y2", &clust_y2, "Cluster_Y_position/D");
+        MC_dvcs->Branch("clust_z2", &caloDist, "Cluster_Z_position_is_the_NPS_distancen/D");
+        MC_dvcs->Branch("clust_ene2", &clust_ene2, "Cluster_energy/D");
+        MC_dvcs->Branch("clust_size2", &clust_size2, "Cluster_size/I");
+    }
+    MC_dvcs->Branch("M", &M, "Reconstructed_invariant_mass_should_be_0_if_only_one_photon/D");
     MC_dvcs->Branch("Mx2", &Mx2, "Missing_mass_squared_of_the_system/D");
     MC_dvcs->Branch("RPh_px", &phot_px, "Reconstructed_photon_Px/D");
     MC_dvcs->Branch("RPh_py", &phot_py, "Reconstructed_photon_Py/D");
@@ -294,9 +347,11 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
     // MC_dvcs->Branch("y_corr", &y_corr, "cluster y after shower depth correction/F");
     
     // Start reconstruction and analysis loop____________________________________________________________
-    TDVCSEvent* dvcs_evt = new TDVCSEvent(run_number[0]);
-    TCaloEvent* calo_evt = new TCaloEvent(run_number[0]);
-    TLorentzVector* L_calo_phot;
+    TDVCSEvent *dvcs_evt = new TDVCSEvent(run_number[0]);
+    TCaloEvent *calo_evt = new TCaloEvent(run_number[0]);
+    TLorentzVector *L_calo_phot;// for DVCS
+    TLorentzVector *L_calo_phot1, *L_calo_phot2;// for pi0
+
     Double_t CountEvt = 0; // for the reconstuction with different dead block configurations
     Int_t NPSconfig = 0; // NPS dead block configuration index
 
@@ -312,6 +367,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
         }
         // initialize the reconstructed variables, updated only when hms_stop_id = 0 and Nb_clust >= 1
         RV_z = -999;
+        // DVCS
         clust_x = -999;
         clust_y = -999;
         clust_ene = -999;
@@ -319,6 +375,24 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
         phot_px = -999;
         phot_py = -999;
         phot_pz = -999;
+        // pi0
+        clust_x1 = -999;
+        clust_y1 = -999;
+        clust_ene1 = -999;
+        clust_size1 = -999;
+        phot_px1 = -999;
+        phot_py1 = -999;
+        phot_pz1 = -999;
+
+        clust_x2 = -999;
+        clust_y2 = -999;
+        clust_ene2 = -999;
+        clust_size2 = -999;
+        phot_px2 = -999;
+        phot_py2 = -999;
+        phot_pz2 = -999;
+
+        M = -999;
         Mx2 = -999;
         RQ2 = -999;
         Rphi = -999;
@@ -354,7 +428,10 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
             dvcs_evt->GetGeometry()->SetCaloTheta(-1*caloAngle);
             dvcs_evt->GetGeometry()->SetCaloDist(caloDist);
             
-            L_calo_phot = new TLorentzVector();
+            L_calo_phot = new TLorentzVector(); // DVCS
+            L_calo_phot1 = new TLorentzVector(); // pi0
+            L_calo_phot2 = new TLorentzVector(); // pi0
+
             dvcs_evt->SetCaloEvent(calo_evt);
 
             // cout<<"Event "<<ievt<<": edep in each crystal (MeV): ";
@@ -381,7 +458,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
                 clus->Analyze(1., -3., 3.);//"true||false", "time_min(ns)", "time_max(ns)", "weight"
             }
 
-            if(Nb_clust == 1) { // Only process events that have 1 clusters in NPS
+            if(gen_type == 0 && Nb_clust == 1) { // Only process events that have 1 clusters in NPS for DVCS
                 clust_x   = calo_evt->GetCluster(0)->GetX();
                 clust_y   = calo_evt->GetCluster(0)->GetY();
                 clust_ene = calo_evt->GetCluster(0)->GetE();
@@ -429,13 +506,142 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1)
                 Lgp = *L_calo_phot;
 
                 Mx2 = (Lb + Lp - Lgp - Lkp).M2();
+                M = Lgp.M();
 
                 // cout<<"Lb: ("<<Lb.Px()<<", "<<Lb.Py()<<", "<<Lb.Pz()<<", "<<Lb.E()<<")"<<endl;
                 // cout<<"Lp: ("<<Lp.Px()<<", "<<Lp.Py()<<", "<<Lp.Pz()<<", "<<Lp.E()<<")"<<endl;
                 // cout<<"Lkp: ("<<Lkp.Px()<<", "<<Lkp.Py()<<", "<<Lkp.Pz()<<", "<<Lkp.E()<<")"<<endl;
                 // cout<<"Lgp: ("<<Lgp.Px()<<", "<<Lgp.Py()<<", "<<Lgp.Pz()<<", "<<Lgp.E()<<")"<<endl;
                 // cout<<"Mx2: "<<Mx2<<endl;
-            }//Nb_clus>=1
+            }//Nb_clus>=1 && DVCS
+
+            if(gen_type == 1) { // pi0
+                if(Nb_clust == 1){ // 1 cluster event
+                    clust_x1   = calo_evt->GetCluster(0)->GetX();
+                    clust_y1   = calo_evt->GetCluster(0)->GetY();
+                    clust_ene1 = calo_evt->GetCluster(0)->GetE();
+                    clust_size1   = calo_evt->GetCluster(0)->GetClusSize();
+                    
+                    // cout<<calo_evt->GetCluster(0)->GetClusSize()<<endl;
+                    // cout<<"Cluster (x,y): ("<<clust_x1<<", "<<clust_y1<<") with energy "<<clust_ene1<<" GeV and size "<<clust_size1<<endl;
+                    *L_calo_phot1 = dvcs_evt->GetPhoton(0);
+                    phot_px1 = L_calo_phot1->Px();//GeV
+                    phot_py1 = L_calo_phot1->Py();
+                    phot_pz1 = L_calo_phot1->Pz();
+                    // cout<<"photon: ("<<phot_px1<<", "<<phot_py1<<", "<<phot_pz1<<")"<<endl;
+                    // if(clust_ene1>0) cout<<a<<endl;
+                    TVector3 k(0, 0, RIE_pz);
+                    TVector3 kp(RSE_px, RSE_py, RSE_pz);
+                    TVector3 qp(phot_px1, phot_py1, phot_pz1);
+
+                    RQ2 = 2*k.Mag()*kp.Mag()*(1 - cos(k.Angle(kp)) ); // Q2 = 2p1p2*(1 - cos(tehta_12))
+
+                    TVector3 q = k - kp;
+
+                    TVector3 v1=q.Cross(kp);
+                    TVector3 v2=q.Cross(qp);
+                    Rphi=v1.Angle(v2);
+                    if(q.Dot(v1.Cross(v2))<0) Rphi=2.*TMath::Pi()-Rphi;
+
+                    //debug
+                    // cout<<"k: ("<<k.Px()<<", "<<k.Py()<<", "<<k.Pz()<<")"<<endl;
+                    // cout<<"kp: ("<<kp.Px()<<", "<<kp.Py()<<", "<<kp.Pz()<<")"<<endl;
+                    // cout<<"qp: ("<<qp.Px()<<", "<<qp.Py()<<", "<<qp.Pz()<<")"<<endl;
+                    // cout<<"q: ("<<q.Px()<<", "<<q.Py()<<", "<<q.Pz()<<")"<<endl;
+                    // cout<<"q cross kp: ("<<v1.Px()<<", "<<v1.Py()<<", "<<v1.Pz()<<")"<<endl;
+                    // cout<<"q cross qp: ("<<v2.Px()<<", "<<v2.Py()<<", "<<v2.Pz()<<")"<<endl;
+
+                    Double_t cos=(q.Dot(qp))/(q.Mag()*qp.Mag());
+                    Double_t nu=RIE_pz-kp.Mag();
+                    Rt=(RQ2*M_targ+2.*nu*M_targ*(nu-sqrt(nu*nu+RQ2)*cos))/(sqrt(nu*nu+RQ2)*cos-nu-M_targ);
+                    RxB = RQ2/(2*M_targ*nu);
+
+                    TLorentzVector Lb, Lp, Lgp, Lkp, L_mis;
+                    Double_t RSE_E = sqrt(RSE_px*RSE_px+RSE_py*RSE_py+RSE_pz*RSE_pz+0.000511*0.000511); // scattered electron energy from HMS simulation
+                    Lb.SetPxPyPzE(0, 0, RIE_pz, RIE_pz);
+                    Lp.SetPxPyPzE(0, 0, 0, M_targ);
+                    Lkp.SetPxPyPzE(RSE_px, RSE_py, RSE_pz, RSE_E);
+                    Lgp = *L_calo_phot1;
+
+                    Mx2 = (Lb + Lp - Lgp - Lkp).M2();
+                    M = Lgp.M();
+
+                    // cout<<"Lb: ("<<Lb.Px()<<", "<<Lb.Py()<<", "<<Lb.Pz()<<", "<<Lb.E()<<")"<<endl;
+                    // cout<<"Lp: ("<<Lp.Px()<<", "<<Lp.Py()<<", "<<Lp.Pz()<<", "<<Lp.E()<<")"<<endl;
+                    // cout<<"Lkp: ("<<Lkp.Px()<<", "<<Lkp.Py()<<", "<<Lkp.Pz()<<", "<<Lkp.E()<<")"<<endl;
+                    // cout<<"Lgp: ("<<Lgp.Px()<<", "<<Lgp.Py()<<", "<<Lgp.Pz()<<", "<<Lgp.E()<<")"<<endl;
+                    // cout<<"Mx2: "<<Mx2<<endl;
+                } // 1 cluster
+
+                if(Nb_clust == 2){ // 2 cluster event
+                    clust_x1   = calo_evt->GetCluster(0)->GetX();
+                    clust_y1   = calo_evt->GetCluster(0)->GetY();
+                    clust_ene1 = calo_evt->GetCluster(0)->GetE();
+                    clust_size1   = calo_evt->GetCluster(0)->GetClusSize();
+
+                    clust_x2   = calo_evt->GetCluster(1)->GetX();
+                    clust_y2   = calo_evt->GetCluster(1)->GetY();
+                    clust_ene2 = calo_evt->GetCluster(1)->GetE();
+                    clust_size2   = calo_evt->GetCluster(1)->GetClusSize();
+                    
+                    // cout<<calo_evt->GetCluster(0)->GetClusSize()<<endl;
+                    // cout<<"Cluster1 (x,y): ("<<clust_x1<<", "<<clust_y1<<") with energy "<<clust_ene1<<" GeV and size "<<clust_size1<<endl;
+                    // cout<<"Cluster2 (x,y): ("<<clust_x2<<", "<<clust_y2<<") with energy "<<clust_ene2<<" GeV and size "<<clust_size2<<endl;
+                    *L_calo_phot1 = dvcs_evt->GetPhoton(0);
+                    phot_px1 = L_calo_phot1->Px();//GeV
+                    phot_py1 = L_calo_phot1->Py();
+                    phot_pz1 = L_calo_phot1->Pz();
+
+                    *L_calo_phot2 = dvcs_evt->GetPhoton(1);
+                    phot_px2 = L_calo_phot2->Px();//GeV
+                    phot_py2 = L_calo_phot2->Py();
+                    phot_pz2 = L_calo_phot2->Pz();
+                    // cout<<"photon: ("<<phot_px1<<", "<<phot_py1<<", "<<phot_pz1<<")"<<endl;
+                    // cout<<"photon: ("<<phot_px2<<", "<<phot_py2<<", "<<phot_pz2<<")"<<endl;
+                    // if(clust_ene1>0) cout<<a<<endl;
+                    TVector3 k(0, 0, RIE_pz);
+                    TVector3 kp(RSE_px, RSE_py, RSE_pz);
+                    TVector3 qp(phot_px1+phot_px2, phot_py1+phot_py2, phot_pz1+phot_pz2); // pi0 momenta for t and phi
+
+                    RQ2 = 2*k.Mag()*kp.Mag()*(1 - cos(k.Angle(kp)) ); // Q2 = 2p1p2*(1 - cos(tehta_12))
+
+                    TVector3 q = k - kp;
+
+                    TVector3 v1=q.Cross(kp);
+                    TVector3 v2=q.Cross(qp);
+                    Rphi=v1.Angle(v2);
+                    if(q.Dot(v1.Cross(v2))<0) Rphi=2.*TMath::Pi()-Rphi;
+
+                    //debug
+                    // cout<<"k: ("<<k.Px()<<", "<<k.Py()<<", "<<k.Pz()<<")"<<endl;
+                    // cout<<"kp: ("<<kp.Px()<<", "<<kp.Py()<<", "<<kp.Pz()<<")"<<endl;
+                    // cout<<"qp: ("<<qp.Px()<<", "<<qp.Py()<<", "<<qp.Pz()<<")"<<endl;
+                    // cout<<"q: ("<<q.Px()<<", "<<q.Py()<<", "<<q.Pz()<<")"<<endl;
+                    // cout<<"q cross kp: ("<<v1.Px()<<", "<<v1.Py()<<", "<<v1.Pz()<<")"<<endl;
+                    // cout<<"q cross qp: ("<<v2.Px()<<", "<<v2.Py()<<", "<<v2.Pz()<<")"<<endl;
+
+                    Double_t cos=(q.Dot(qp))/(q.Mag()*qp.Mag());
+                    Double_t nu=RIE_pz-kp.Mag();
+                    Rt=(RQ2*M_targ+2.*nu*M_targ*(nu-sqrt(nu*nu+RQ2)*cos))/(sqrt(nu*nu+RQ2)*cos-nu-M_targ);
+                    RxB = RQ2/(2*M_targ*nu);
+
+                    TLorentzVector Lb, Lp, Lgp, Lkp, L_mis;
+                    Double_t RSE_E = sqrt(RSE_px*RSE_px+RSE_py*RSE_py+RSE_pz*RSE_pz+0.000511*0.000511); // scattered electron energy from HMS simulation
+                    Lb.SetPxPyPzE(0, 0, RIE_pz, RIE_pz);
+                    Lp.SetPxPyPzE(0, 0, 0, M_targ);
+                    Lkp.SetPxPyPzE(RSE_px, RSE_py, RSE_pz, RSE_E);
+                    Lgp = *L_calo_phot1+*L_calo_phot2;
+
+                    Mx2 = (Lb + Lp - Lgp - Lkp).M2();
+                    M = Lgp.M();
+                    // cout<<"Lb: ("<<Lb.Px()<<", "<<Lb.Py()<<", "<<Lb.Pz()<<", "<<Lb.E()<<")"<<endl;
+                    // cout<<"Lp: ("<<Lp.Px()<<", "<<Lp.Py()<<", "<<Lp.Pz()<<", "<<Lp.E()<<")"<<endl;
+                    // cout<<"Lkp: ("<<Lkp.Px()<<", "<<Lkp.Py()<<", "<<Lkp.Pz()<<", "<<Lkp.E()<<")"<<endl;
+                    // cout<<"Lgp: ("<<Lgp.Px()<<", "<<Lgp.Py()<<", "<<Lgp.Pz()<<", "<<Lgp.E()<<")"<<endl;
+                    // cout<<"Mx2: "<<Mx2<<endl;
+                }
+            }//pi0
+
             calo_evt->Reset();
         } //hms_stop_id=0
 
