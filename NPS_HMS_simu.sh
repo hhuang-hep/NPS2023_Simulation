@@ -2,14 +2,13 @@
 
 simDir=$(pwd) # simulation home directory
 macro=bashrun.mac # macro file to run GEANT4 simulation
+
+gen_type=0 # index for different reactions (0: DVCS (default), 1: exclusive pi0)
+# This index should corresponds to the src and include files in the Geant4 package (for DVCS or pi0)
+
 i_job=$4 # index for different output file names for job submission
 if [ -z "$i_job" ]; then
     i_job=1
-fi
-
-gen_type=$5 # index for different reactions (0: DVCS (default), 1: exclusive pi0)
-if [ -z "$gen_type" ]; then
-    gen_type=0
 fi
 
 # ------------ Environment setup ------------
