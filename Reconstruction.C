@@ -183,8 +183,8 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
     }
 
     t_g4->SetBranchAddress("X_sum", &X_sum); // XSecSum(0) from DVCS gen
-    t_g4->SetBranchAddress("X_diff", &X_diff); // XSecDif() from DVCS gen
-    t_g4->SetBranchAddress("X_BH", &X_BH); // XSecSum(1) from DVCS gen
+    t_g4->SetBranchAddress("X_diff", &X_diff); // XSecDif() from DVCS gen, it will be 0 for pi0
+    t_g4->SetBranchAddress("X_BH", &X_BH); // XSecSum(1) from DVCS gen, it will be 0 for pi0
 
     // From HMS simulation________________________________________________________________
     // Input file from the Geant4 simulation
@@ -277,13 +277,13 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         MC_dvcs->Branch("GPh_pz", &GP_pz, "Real_photon_Pz_from_DVCS_gen/D");
     }
     else if(gen_type == 1){
-        MC_dvcs->Branch("GPh_px1", &GP_px1, "Real_photon_Px_from_DVCS_gen/D");
-        MC_dvcs->Branch("GPh_py1", &GP_py1, "Real_photon_Py_from_DVCS_gen/D");
-        MC_dvcs->Branch("GPh_pz1", &GP_pz1, "Real_photon_Pz_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_px1", &GP_px1, "Real_photon_Px_from_pi0_gen/D");
+        MC_dvcs->Branch("GPh_py1", &GP_py1, "Real_photon_Py_from_pi0_gen/D");
+        MC_dvcs->Branch("GPh_pz1", &GP_pz1, "Real_photon_Pz_from_pi0_gen/D");
 
-        MC_dvcs->Branch("GPh_px2", &GP_px2, "Real_photon_Px_from_DVCS_gen/D");
-        MC_dvcs->Branch("GPh_py2", &GP_py2, "Real_photon_Py_from_DVCS_gen/D");
-        MC_dvcs->Branch("GPh_pz2", &GP_pz2, "Real_photon_Pz_from_DVCS_gen/D");
+        MC_dvcs->Branch("GPh_px2", &GP_px2, "Real_photon_Px_from_pi0_gen/D");
+        MC_dvcs->Branch("GPh_py2", &GP_py2, "Real_photon_Py_from_pi0_gen/D");
+        MC_dvcs->Branch("GPh_pz2", &GP_pz2, "Real_photon_Pz_from_pi0_gen/D");
     }
     
     MC_dvcs->Branch("GQ2", &GQ2, "Q2_from_DVCS_gen/D");
@@ -296,6 +296,10 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         MC_dvcs->Branch("X_sum", &X_sum, "XSecSum(0)_from_DVCS_gen/D");
         MC_dvcs->Branch("X_diff", &X_diff, "XSecDif()_from_DVCS_gen/D");
         MC_dvcs->Branch("X_BH", &X_BH, "XSecSum(1)_from_DVCS_gen/D");
+    }
+
+    else if(gen_type == 1){
+        MC_dvcs->Branch("X_sum", &X_sum, "XSecSum(0)_from_pi0_gen_(to_be_checked)/D");
     }
 
     MC_dvcs->Branch("hms_stop_id", &hms_stop_id, "HMS_stop_id/D");
