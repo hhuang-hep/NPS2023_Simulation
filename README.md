@@ -106,7 +106,7 @@ The function of the rest of files are:
 The details of the simulation and output variables are in https://indico.jlab.org/event/946/contributions/16514/attachments/12609/20085/20250506_DVCS_simulation_Hao_Huang.pdf
 
 ## Generate exclusive pi0 events
-1. Go to 'HallC_NPS/DVCS_evt_gen/DVCS'. There is a folder "pi0Gen" contains the source and header files for the simulation of exclusive pi0 events (in 'pi0Gen/src' and 'pi0Gen/include').
+1. Go to 'HallC_NPS/DVCS_evt_gen/DVCS'. Folder "pi0Gen" contains the source and header files for the simulation of exclusive pi0 events (in 'pi0Gen/src' and 'pi0Gen/include').
 2. Replace the files in 'HallC_NPS/DVCS_evt_gen/DVCS/src' and 'HallC_NPS/DVCS_evt_gen/DVCS/include' with the files in 'pi0Gen' (You could make a backup before this step).
 3. Recompile the package.
 4. Modify 'gen_type' in NPS_HMS_simu.sh (please set to 1)
@@ -121,6 +121,9 @@ The details of the simulation and output variables are in https://indico.jlab.or
     - potential solution: add 'module 'unuse /group/nps/modulefiles' after every 'module purge' in NPS_HMS_simu.sh
 
 3. The option 'g' doesn't show up after 'ccmake ../DVCS/' and 'c' when installing the Geant4 package.
-    - solution: after 'ccmake ../DVCS/' and 'c', do another 'c'. Now you should see 'g' at the bottom and could generate the Makefile. 
+    - solution: after 'ccmake ../DVCS/' and 'c', do another 'c'. Now you should see 'g' at the bottom and could generate the Makefile.
+
+4. "Error in <TSystem::ExpandFileName>: input: $folder_NPS_SOFT, output: $folder_NPS_SOFT" shows when execute 'root'
+    - solution: This error appears when the include path $folder_NPS_SOFT is not assigned and ROOT load 'rootlogon.C' to set up the path for NPS_SOFT. Execute ROOT with `root -n` should work.
 
 
