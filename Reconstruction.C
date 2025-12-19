@@ -355,13 +355,23 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
     MC_dvcs->Branch("hsdelta", &hsdelta, "Delta_at_target_from_HMS_simulation/D");
 
     //w0 and shower depth information just in case
-    // Float_t w0, a, x, y, x_corr, y_corr;
-    // MC_dvcs->Branch("w0", &w0, "weight for cluster position/F");
-    // MC_dvcs->Branch("a", &a, "parameter a for shower depth correction/F");
-    // MC_dvcs->Branch("x", &x, "cluster x before shower depth correction/F");
-    // MC_dvcs->Branch("y", &y, "cluster y before shower depth correction/F");
-    // MC_dvcs->Branch("x_corr", &x_corr, "cluster x after shower depth correction/F");
-    // MC_dvcs->Branch("y_corr", &y_corr, "cluster y after shower depth correction/F");
+    Float_t a, x, y, x_corr, y_corr; // For DVCS
+    Float_t a1, x1, y1, x_corr1, y_corr1; // For pi0 photon1
+    Float_t a2, x2, y2, x_corr2, y_corr2; // For pi0 photon2
+    if(gen_type == 0){
+        MC_dvcs->Branch("a", &a, "shower_depth_along_photon_trajectory/F");
+        MC_dvcs->Branch("x_corr", &x_corr, "cluster x after shower depth correction/F");
+        MC_dvcs->Branch("y_corr", &y_corr, "cluster y after shower depth correction/F");
+    }
+    else if(gen_type == 1){
+        MC_dvcs->Branch("a1", &a1, "shower_depth_along_photon_trajectory/F");
+        MC_dvcs->Branch("x_corr1", &x_corr1, "cluster x after shower depth correction/F");
+        MC_dvcs->Branch("y_corr1", &y_corr1, "cluster y after shower depth correction/F");
+
+        MC_dvcs->Branch("a2", &a2, "shower_depth_along_photon_trajectory/F");
+        MC_dvcs->Branch("x_corr2", &x_corr2, "cluster x after shower depth correction/F");
+        MC_dvcs->Branch("y_corr2", &y_corr2, "cluster y after shower depth correction/F");
+    }
     
     // Start reconstruction and analysis loop____________________________________________________________
     TDVCSEvent *dvcs_evt = new TDVCSEvent(run_number[0]);
@@ -384,43 +394,21 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         }
         // initialize the reconstructed variables, updated only when hms_stop_id = 0 and Nb_clust >= 1
         RV_z = -999;
-        // DVCS
-        clust_x = -999;
-        clust_y = -999;
-        clust_ene = -999;
-        clust_size = -999;
-        phot_px = -999;
-        phot_py = -999;
-        phot_pz = -999;
-        // pi0
-        clust_x1 = -999;
-        clust_y1 = -999;
-        clust_ene1 = -999;
-        clust_size1 = -999;
-        phot_px1 = -999;
-        phot_py1 = -999;
-        phot_pz1 = -999;
+        
+        clust_x = -999; clust_y = -999; clust_ene = -999; clust_size = -999;// DVCS
+        phot_px = -999; phot_py = -999; phot_pz = -999;// DVCS
+         
+        clust_x1 = -999; clust_y1 = -999; clust_ene1 = -999; clust_size1 = -999;// pi0
+        phot_px1 = -999; phot_py1 = -999; phot_pz1 = -999;// pi0
+        clust_x2 = -999; clust_y2 = -999; clust_ene2 = -999; clust_size2 = -999;// pi0
+        phot_px2 = -999; phot_py2 = -999; phot_pz2 = -999;// pi0
 
-        clust_x2 = -999;
-        clust_y2 = -999;
-        clust_ene2 = -999;
-        clust_size2 = -999;
-        phot_px2 = -999;
-        phot_py2 = -999;
-        phot_pz2 = -999;
+        M = -999; Mx2 = -999;// DVCS and pi0
+        RQ2 = -999; Rphi = -999; Rt = -999; RxB = -999;// DVCS and pi0
 
-        M = -999;
-        Mx2 = -999;
-        RQ2 = -999;
-        Rphi = -999;
-        Rt = -999;
-        RxB = -999;
-        // w0 = -999;
-        // a = -999;
-        // x = -999;
-        // y = -999;
-        // x_corr = -999;
-        // y_corr = -999;
+        a = -999; x_corr = -999; y_corr = -999;// DVCS
+        a1 = -999; x_corr1 = -999; y_corr1 = -999;// pi0
+        a2 = -999; x_corr2 = -999; y_corr2 = -999;// pi0
 
         // For different dead block configurations, assign the caloMaskBlock array accordingly
         CountEvt++;
@@ -483,7 +471,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
                 
                 // cout<<calo_evt->GetCluster(0)->GetClusSize()<<endl;
                 // cout<<"Cluster (x,y): ("<<clust_x<<", "<<clust_y<<") with energy "<<clust_ene<<" GeV and size "<<clust_size<<endl;
-                *L_calo_phot = dvcs_evt->GetPhoton(0);
+                *L_calo_phot = dvcs_evt->GetPhoton(0, 7, 0, a, x_corr, y_corr);
                 phot_px = L_calo_phot->Px();//GeV
                 phot_py = L_calo_phot->Py();
                 phot_pz = L_calo_phot->Pz();
@@ -541,7 +529,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
                     
                     // cout<<calo_evt->GetCluster(0)->GetClusSize()<<endl;
                     // cout<<"Cluster (x,y): ("<<clust_x1<<", "<<clust_y1<<") with energy "<<clust_ene1<<" GeV and size "<<clust_size1<<endl;
-                    *L_calo_phot1 = dvcs_evt->GetPhoton(0);
+                    *L_calo_phot1 = dvcs_evt->GetPhoton(0, 7, 0, a1, x_corr1, y_corr1);
                     phot_px1 = L_calo_phot1->Px();//GeV
                     phot_py1 = L_calo_phot1->Py();
                     phot_pz1 = L_calo_phot1->Pz();
@@ -604,12 +592,12 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
                     // cout<<calo_evt->GetCluster(0)->GetClusSize()<<endl;
                     // cout<<"Cluster1 (x,y): ("<<clust_x1<<", "<<clust_y1<<") with energy "<<clust_ene1<<" GeV and size "<<clust_size1<<endl;
                     // cout<<"Cluster2 (x,y): ("<<clust_x2<<", "<<clust_y2<<") with energy "<<clust_ene2<<" GeV and size "<<clust_size2<<endl;
-                    *L_calo_phot1 = dvcs_evt->GetPhoton(0);
+                    *L_calo_phot1 = dvcs_evt->GetPhoton(0, 7, 0, a1, x_corr1, y_corr1);
                     phot_px1 = L_calo_phot1->Px();//GeV
                     phot_py1 = L_calo_phot1->Py();
                     phot_pz1 = L_calo_phot1->Pz();
 
-                    *L_calo_phot2 = dvcs_evt->GetPhoton(1);
+                    *L_calo_phot2 = dvcs_evt->GetPhoton(1, 7, 0, a2, x_corr2, y_corr2);
                     phot_px2 = L_calo_phot2->Px();//GeV
                     phot_py2 = L_calo_phot2->Py();
                     phot_pz2 = L_calo_phot2->Pz();
