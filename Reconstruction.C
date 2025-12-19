@@ -285,14 +285,18 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         MC_dvcs->Branch("GPh_py2", &GP_py2, "Real_photon_Py_from_DVCS_gen/D");
         MC_dvcs->Branch("GPh_pz2", &GP_pz2, "Real_photon_Pz_from_DVCS_gen/D");
     }
+    
     MC_dvcs->Branch("GQ2", &GQ2, "Q2_from_DVCS_gen/D");
     MC_dvcs->Branch("GxB", &GxB, "xB_from_DVCS_gen/D");
     MC_dvcs->Branch("Gt", &Gt, "t_from_DVCS_gen/D");
     MC_dvcs->Branch("Gphi", &Gphi, "phi_from_DVCS_gen/D");
     MC_dvcs->Branch("psf", &psf, "Phase_Space_Factor_from_DVCS_gen/D");
-    MC_dvcs->Branch("X_sum", &X_sum, "XSecSum(0)_from_DVCS_gen/D");
-    MC_dvcs->Branch("X_diff", &X_diff, "XSecDif()_from_DVCS_gen/D");
-    MC_dvcs->Branch("X_BH", &X_BH, "XSecSum(1)_from_DVCS_gen/D");
+
+    if(gen_type == 0){
+        MC_dvcs->Branch("X_sum", &X_sum, "XSecSum(0)_from_DVCS_gen/D");
+        MC_dvcs->Branch("X_diff", &X_diff, "XSecDif()_from_DVCS_gen/D");
+        MC_dvcs->Branch("X_BH", &X_BH, "XSecSum(1)_from_DVCS_gen/D");
+    }
 
     MC_dvcs->Branch("hms_stop_id", &hms_stop_id, "HMS_stop_id/D");
     MC_dvcs->Branch("RV_z", &RV_z, "Reconstructed_vertex_Z_position_from_HMS_simulation/D");
@@ -321,9 +325,22 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
     }
     MC_dvcs->Branch("M", &M, "Reconstructed_invariant_mass_should_be_0_if_only_one_photon/D");
     MC_dvcs->Branch("Mx2", &Mx2, "Missing_mass_squared_of_the_system/D");
-    MC_dvcs->Branch("RPh_px", &phot_px, "Reconstructed_photon_Px/D");
-    MC_dvcs->Branch("RPh_py", &phot_py, "Reconstructed_photon_Py/D");
-    MC_dvcs->Branch("RPh_pz", &phot_pz, "Reconstructed_photon_Pz/D");
+
+    if(gen_type == 0){
+        MC_dvcs->Branch("RPh_px", &phot_px, "Reconstructed_photon_Px/D");
+        MC_dvcs->Branch("RPh_py", &phot_py, "Reconstructed_photon_Py/D");
+        MC_dvcs->Branch("RPh_pz", &phot_pz, "Reconstructed_photon_Pz/D");
+    }
+    else if(gen_type == 1){
+        MC_dvcs->Branch("RPh_px1", &phot_px1, "Reconstructed_photon1_Px/D");
+        MC_dvcs->Branch("RPh_py1", &phot_py1, "Reconstructed_photon1_Py/D");
+        MC_dvcs->Branch("RPh_pz1", &phot_pz1, "Reconstructed_photon1_Pz/D");
+
+        MC_dvcs->Branch("RPh_px2", &phot_px2, "Reconstructed_photon2_Px/D");
+        MC_dvcs->Branch("RPh_py2", &phot_py2, "Reconstructed_photon2_Py/D");
+        MC_dvcs->Branch("RPh_pz2", &phot_pz2, "Reconstructed_photon2_Pz/D");
+    }
+
     MC_dvcs->Branch("RQ2", &RQ2, "Reconstructed_Q2/D");
     MC_dvcs->Branch("RxB", &RxB, "Reconstructed_xB/D");
     MC_dvcs->Branch("Rt", &Rt, "Reconstructed_t/D");
