@@ -417,7 +417,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         // For different dead block configurations, assign the caloMaskBlock array accordingly
         CountEvt++;
         // cout<<CountEvt/nevt<<", "<<total_charge_frac[NPSconfig]<<endl;
-        if(CountEvt/nevt > total_charge_frac[NPSconfig]){
+        if(CountEvt/nevt > total_charge_frac[NPSconfig] && NPSconfig < run_number.size()-1){
             NPSconfig++;
             caloMaskBlock_temp = db->GetEntry_i("CALO_flag_MaskBlock", run_number[NPSconfig]);
             // Convert the mask block information to the simulation numbering scheme
@@ -428,6 +428,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
             cout<<"========== NPS mask blocks =========="<<endl;
             for(int i = 0; i < 1080; i++) if(caloMaskBlock_temp[i] == 1) cout<<i<<" "; // output in NPS numbering scheme
             cout<<"======================================"<<endl;
+            cout<<endl;
         }
 
         if(hms_stop_id == 0){ // Reconstruct only when the event passed the HMS simulation
