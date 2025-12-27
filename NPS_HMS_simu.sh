@@ -162,7 +162,7 @@ echo "Target 1 (Target type): ${target1} (${TARGET1_MAP[$target1]})"
 echo "Target 2 (Nucleon): ${target2} (${TARGET2_MAP[$target2]})"
 echo "========================================================="
 
-rm -rf $simDir/input_g4/*
+rm -rf ${simDir}/input_g4/input_${i_job}.txt
 file_name=generated_events/${KIN_NAME}_${TARGET1_MAP[$target1]}_${i_job}.root
 echo $file_name >> ${simDir}/input_g4/input_${i_job}.txt
 echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
