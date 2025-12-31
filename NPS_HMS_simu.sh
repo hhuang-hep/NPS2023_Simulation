@@ -177,6 +177,8 @@ module load geant4/11.2.1
 module load root/6.30.04
 
 ./DVCS $run_number $macro $target1 $target2 < $simDir/input_g4/input_$i_job.txt
+echo "Geant4 simulation complete."
+echo ""
 
 # ------------ HMS mc-single-arm simulation ------------
 if [ $? -eq 0 ]; then
@@ -194,6 +196,8 @@ if [ $? -eq 0 ]; then
 
         # copy the input file so the script can find
         cp infiles/hms_${TARGET1_MAP[$target1]}_${KIN_NAME}.inp infiles/hms_${TARGET1_MAP[$target1]}_${KIN_NAME}_${i_job}.inp
+        # print out the setting for recording
+        cat infiles/hms_${TARGET1_MAP[$target1]}_${KIN_NAME}_${i_job}.inp
         # run simulation
         ./run_mc_single_arm_tree hms_${TARGET1_MAP[$target1]}_${KIN_NAME}_${i_job} ${KIN_NAME}_${TARGET1_MAP[$target1]}_${i_job}
         # remove the duplicated input file
@@ -209,6 +213,7 @@ if [ $? -eq 0 ]; then
 else
     echo "Error: Geant4 simulation failed. Skipping HMS simulation."
 fi
+echo ""
 
 # ------------ vertex z and photon reconstruction ------------
 module purge
