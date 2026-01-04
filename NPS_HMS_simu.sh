@@ -162,13 +162,6 @@ echo "Target 1 (Target type): ${target1} (${TARGET1_MAP[$target1]})"
 echo "Target 2 (Nucleon): ${target2} (${TARGET2_MAP[$target2]})"
 echo "========================================================="
 
-rm -rf ${simDir}/input_g4/input_${i_job}.txt
-file_name=generated_events/${KIN_NAME}_${TARGET1_MAP[$target1]}_${i_job}.root
-echo $file_name >> ${simDir}/input_g4/input_${i_job}.txt
-echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
-echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
-echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
-
 # ------------ NPS Geant4 simulation ------------
 source /etc/profile.d/modules.sh
 module purge
@@ -176,6 +169,15 @@ module use /group/halla/modulefiles
 module load geant4/11.2.1
 module load root/6.30.04
 
+# prepare input file for Geant4 simulation
+rm -rf ${simDir}/input_g4/input_${i_job}.txt
+file_name=generated_events/${KIN_NAME}_${TARGET1_MAP[$target1]}_${i_job}.root
+echo $file_name >> ${simDir}/input_g4/input_${i_job}.txt
+echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
+echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
+echo $i_job >> ${simDir}/input_g4/input_${i_job}.txt
+
+# start the simulation
 ./DVCS $run_number $macro $target1 $target2 < $simDir/input_g4/input_$i_job.txt
 echo "Geant4 simulation complete."
 echo ""
@@ -232,3 +234,5 @@ root -b <<EOF
 EOF
 
 rm $simDir/temp/Reconstruction_${i_job}.C
+rm $simDir/temp/Reconstruction_${i_job}_C.* # remove .so and .d files
+rm $simDir/temp/Reconstruction_${i_job}_C_*.pcm # remove .pcm files
