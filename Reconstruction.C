@@ -19,13 +19,12 @@
 #include <sstream>
 #include "TTreeIndex.h"
 #include "TChainIndex.h"
+#include "TCaloBase.h"
 #include "TCaloEvent.h"
 #include "TCaloGeometry.h"
-#include "TCaloBase.h"
+#include "TDVCSDB.h"
 #include "TDVCSEvent.h"
 using namespace std;
-
-#include "/group/nps/hhuang/software/NPS_SOFT/TDVCSDB.h"
 
 void GetRunRange(const string &kinc_param, vector<int> &minrun, vector<int> &maxrun);
 void GetRunNumbersAndCharge(int target_flag, vector<int> minrun, vector<int> maxrun, vector <int> &run_number, vector <double> &total_charge);
@@ -36,7 +35,7 @@ TDVCSDB *db = new TDVCSDB("dvcs", "clrlpc", 3306, "hhuang", "");
 
 void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int gen_type = 0)
 {   
-    gSystem->Load("/group/nps/hhuang/software/NPS_SOFT/libDVCS.so");
+    gSystem->Load("libDVCS.so");
 
     // Specify the target type
     Double_t M_targ = 0;
