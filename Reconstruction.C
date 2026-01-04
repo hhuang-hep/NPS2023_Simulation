@@ -54,6 +54,15 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         return;
     }
 
+    // 2x2 clustering threshold in GeV
+    Double_t clusThr;
+    if(gen_type == 0) clusThr = 0.5; // for DVCS photons
+    else if(gen_type == 1) clusThr = 0.2; // for pi0 photons
+    else {
+        cout << "Error: invalid reaction type!" << endl;
+        return;
+    }
+
     // The minimum and maxrun numbers of the kinematics
     vector<int> minrun, maxrun;
     GetRunRange(kinc_param, minrun, maxrun);
@@ -459,7 +468,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
                 else block->AddPulse(1.04*edep[i]*(1e-3), 0.); // Energy after calibration for simulation
             }
 
-            calo_evt->TriggerSim(0.2); // set higher if too many blocks in the event
+            calo_evt->TriggerSim(clusThr); // set higher if too many blocks in the event
             calo_evt->DoClustering(-3., 3.);//-3ns to +3ns windows
             Int_t Nb_clust = calo_evt->GetNbClusters();
             // cout<<"Number of clusters: "<<Nb_clust<<endl;
