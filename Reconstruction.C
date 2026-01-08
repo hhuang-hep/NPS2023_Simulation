@@ -674,7 +674,14 @@ void GetRunRange(const string &kinc_param, vector<int> &minrun, vector<int> &max
     minrun.clear();
     maxrun.clear();
 
-    const string filename = "/group/nps/hhuang/analysis/DVCS_NPS2023/DVCS_analysis/Group/software/mc-single-arm/KinC_list.txt";
+    // Get the kinematic list from mc-single-arm package
+    const char* folder_hms_c = gSystem->Getenv("folder_hms");
+    if(!folder_hms_c){
+        cerr << "Error: environment variable folder_hms not set!" << endl;
+        return;
+    }
+    const string path_folder_hms(folder_hms_c);
+    const string filename = path_folder_hms + "/KinC_list.txt";
     ifstream infile(filename);
 
     if (!infile.is_open()) {
@@ -682,6 +689,7 @@ void GetRunRange(const string &kinc_param, vector<int> &minrun, vector<int> &max
         return;
     }
 
+    // Get the list of begin and end run, put into the vectors
     string line;
     if (!getline(infile, line)) return;
 
