@@ -39,6 +39,8 @@ After downloading and compiling these packages, one can easily setup and run the
     `cd HallC_NPS/DVCS_evt_gen/`\
     `mkdir build`\
     `cd build`\
+    `setenv DVCS_GEN_DIR <path to dvcs_gen package>` (requires for Geant4 compilation)\
+    `setenv NPS_SOFT_DIR <path to NPS_SOFT package>` (requires for Geant4 compilation)\
     `ccmake ../DVCS/` (then type 'c' to configure and 'g' to generate the 'Makefile')\
     `make`
 2. HMS MC-single-arm package
