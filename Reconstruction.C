@@ -251,6 +251,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
     TTree *MC_dvcs = new TTree("MC_dvcs","TTree for DVCS simulation data"); // Create a new tree for reconstructed events
 
     // New branches for reconstructed photon and NPS clusters
+    Int_t nps_config_runNb; // run number indicating the dead block configuration used in the reconstruction
     Double_t RV_z; // Reconstructed vertex z position
     Double_t clust_x, clust_y, clust_ene; // DVCS
     Int_t clust_size; // DVCS
@@ -265,8 +266,9 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
     Double_t Mx2, M;
     Double_t RQ2, Rphi, Rt, RxB;
 
-    MC_dvcs->Branch("evtNb", &evtNb, "Event_Number/I");
+    MC_dvcs->Branch("evtNb", &evtNb, "Event_Number/I"); // Event number from event generator
     MC_dvcs->Branch("edep", edep, "Deposited_energy[1080]/D");
+    MC_dvcs->Branch("nps_config_runNb", &nps_config_runNb, "Run_number_of_dead_block_config/I"); // run number indicating the dead block configuration used in the reconstruction
     MC_dvcs->Branch("GV_x", &GV_x, "Vertex_position_X_from_DVCS_gen/D");
     MC_dvcs->Branch("GV_y", &GV_y, "Vertex_position_Y_from_DVCS_gen/D");
     MC_dvcs->Branch("GV_z", &GV_z, "Vertex_position_Z_from_DVCS_gen/D");
@@ -393,6 +395,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
 
     Double_t CountEvt = 0; // for the reconstuction with different dead block configurations
     Int_t NPSconfig = 0; // NPS dead block configuration index
+    nps_config_runNb = run_number[NPSconfig]; // initialize with the first NPS configuration
 
     Int_t nevt = t_hms->GetEntries();
     // Int_t nevt = 1000000; // for test
@@ -428,6 +431,7 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
         if(CountEvt/nevt > total_charge_frac[NPSconfig] && NPSconfig < run_number.size()-1){
             NPSconfig++;
             caloMaskBlock_temp = db->GetEntry_i("CALO_flag_MaskBlock", run_number[NPSconfig]);
+            nps_config_runNb = run_number[NPSconfig]; // update the run number with new dead block configuration
             // Convert the mask block information to the simulation numbering scheme
             for(Int_t i = 0; i < 1080; i++){
                 caloMaskBlock[i] = caloMaskBlock_temp[bnConv_OldToNew(i)];
