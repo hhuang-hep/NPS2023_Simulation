@@ -105,7 +105,7 @@ The function of the rest of files are:
 - bashrun.mac: the macro file for Geant4, including the number of events to simulate.
 - MakeRunMacro.sh: a script to easily change the number of events in bashrun.mac by `./MakeRunMacro.sh <number of events>`
 - Reconstruction.C: reconstruction of vertex z and photons in NPS and output the final results of simulation\
-The details of the simulation and output variables are in https://indico.jlab.org/event/946/contributions/16514/attachments/12609/20085/20250506_DVCS_simulation_Hao_Huang.pdf
+The details of the simulation and output variables are shown below.
 
 ## Generate exclusive pi0 events
 1. Go to 'HallC_NPS/DVCS_evt_gen/DVCS'. Folder "pi0Gen" contains the source and header files for the simulation of exclusive pi0 events (in 'pi0Gen/src' and 'pi0Gen/include').
@@ -128,4 +128,35 @@ The details of the simulation and output variables are in https://indico.jlab.or
 4. "Error in <TSystem::ExpandFileName>: input: $folder_NPS_SOFT, output: $folder_NPS_SOFT" shows when execute 'root'
     - solution: This error appears when the include path $folder_NPS_SOFT is not assigned and ROOT load 'rootlogon.C' to set up the path for NPS_SOFT. Execute ROOT with `root -n` should work.
 
+## Output tree and branches after reconstruction
+- Output tree: MC_dvcs, includes all generated and reconstructed events
+- Output branches (G: generated; R: reconstructed)
+    | Branch name | Type | Discription |
+    |:------|:------|:------|
+    | evtNb | int | event number from event generator
+    | edep | double[1080] | energy deposition in each crystal
+    | nps_config_runNb | int | run number indicating the dead block configuration used in the reconstruction
+    | GV_x (y, z) | double | vertex position
+    | RIE_px (py, pz) | double | momenta of initial beam electron
+    | GIE_px (py, pz) | double | momenta of initial beam electron momenta after external radiation correction
+    | GSE_px (py, pz) | double | momenta of scattered election after internal radiation correction
+    | GPh_px (py, pz) | double | momenta of generated photons
+    | GQ2, GxB, Gt, Gphi | double | phase space variables: Q2, xBj, t, phi
+    | hms_stop_id | double | 0 if passed HMS simulation, > 0 when stopped in HMS
+    | RV_z | double | reconstructed vertex z position
+    | RSE_px (py, pz) | double | momenta of scattered electron in HMS
+    | clust_ene, clust_x, clust_y | double | cluster energy, position
+    | clust_size | int | cluster size
+    | Mx2 | double | reconstructed missing mass square
+    | M | double | reconstructed invariant mass square
+    | RPh_px (py, pz) | double | momenta of reconstructed photons
+    | RQ2, RxB, Rt, Rphi | double | reconstructed phase space variables
+    | hsxfp (yfp, xpfp, ypfp) | double | HMS focal plane variables
+    | hsxptar (ytar, yptar), hsdelta | double | HMS target variables and δp
+    | a | float | shower depth along reconstructed photon trajectory
+    | x_corr (y_corr) | float | cluster x (y) after shower depth correction
 
+    ### Note
+    1. RV_z ,RSE_px (py, pz) and HMS related variables are meaningful only when hms_stop_id = 0
+    2. Cluster and reconstructed photon information  are meaningful only when hms_stop_id = 0 && clust_ene > 0
+    3. Branches of 2 photons (clusters) will show up when simulating pi0 events
