@@ -640,7 +640,15 @@ void Reconstruction(string kinc_param, int target_flag = 0, int i_job = 1, int g
 
                     Double_t cos=(q.Dot(qp))/(q.Mag()*qp.Mag());
                     Double_t nu=RIE_pz-kp.Mag();
-                    Rt=(RQ2*M_targ+2.*nu*M_targ*(nu-sqrt(nu*nu+RQ2)*cos))/(sqrt(nu*nu+RQ2)*cos-nu-M_targ);
+
+                    Double_t E1 = std::sqrt(phot_px1*phot_px1 + phot_py1*phot_py1 + phot_pz1*phot_pz1);
+                    Double_t E2 = std::sqrt(phot_px2*phot_px2 + phot_py2*phot_py2 + phot_pz2*phot_pz2);
+                    Double_t Epi = E1 + E2; // Raw pi0 energy from two photons
+                    Double_t minv2_raw = Epi*Epi - qp.Mag2(); // Raw pi0 invariant mass squared
+                    // ---- DVMP t = (q - p_pi)^2 ----
+                    // t = minv^2 - Q^2 - 2*(nu*Epi - |q|*|p_pi|*cos(theta_qpi))
+                    Rt = minv2_raw - RQ2 - 2.0*(nu*Epi - q.Mag()*qp.Mag()*cos);
+                    
                     RxB = RQ2/(2*M_targ*nu);
 
                     TLorentzVector Lb, Lp, Lgp, Lkp, L_mis;
